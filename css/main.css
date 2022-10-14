@@ -1,0 +1,204 @@
+/* Fonts family */
+@font-face {
+  font-family: "Roboto";
+  src: url("../fonts/Roboto-Regular.eot");
+  src: url("../fonts/Roboto-Regular.eot?#iefix") format("embedded-opentype"),
+    url("../fonts/Roboto-Regular.woff2") format("woff2"),
+    url("../fonts/Roboto-Regular.woff") format("woff"),
+    url("../fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto-light";
+  src: url("../fonts/Roboto-Light.eot");
+  src: url("../fonts/Roboto-Light.eot?#iefix") format("embedded-opentype"),
+    url("../fonts/Roboto-Light.woff2") format("woff2"),
+    url("../fonts/Roboto-Light.woff") format("woff"),
+    url("../fonts/Roboto-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* main */
+* {
+  font-family: "Roboto", Times, serif, serif;
+  font-size: 16px;
+}
+body {
+  margin: 0;
+  padding: 0;
+}
+a {
+  overflow: hidden;
+  font-family: "Roboto-light", serif;
+}
+h5 {
+  font-size: 22px !important;
+}
+
+/* containers */
+.main-container {
+  margin: 55px auto;
+}
+.users-block {
+  padding: 0 70px !important;
+}
+.grid-container {
+  display: flex;
+  align-content: stretch;
+}
+
+/* icons */
+.search {
+  background-color: #b450ff;
+  -webkit-mask: url(/assets/img/search.svg) center/24px 24px no-repeat;
+  mask: url(/assets/img/search.svg) center/24px 24px no-repeat;
+  width: 30px;
+  height: 30px;
+}
+.phone {
+  background-color: #b450ff;
+  -webkit-mask: url(/assets/img/phone.svg) center/20px 20px no-repeat;
+  mask: url(/assets/img/phone.svg) center/20px 20px no-repeat;
+  width: 24px;
+  height: 24px;
+}
+.email {
+  background-color: #b450ff;
+  -webkit-mask: url(/assets/img/envelope.svg) center/20px 20px no-repeat;
+  mask: url(/assets/img/envelope.svg) center/20px 20px no-repeat;
+  width: 24px;
+  height: 24px;
+}
+.close {
+  cursor: pointer;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-top: -75px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 40px;
+  height: 40px;
+}
+
+/* input */
+.input-group {
+  max-width: 1210px !important;
+  height: 50px;
+  margin: auto;
+}
+.search-input {
+  border: 1px solid #e3eef0 !important;
+  border-right: none !important;
+  border-radius: 100px 0 0 100px !important;
+}
+.search-button {
+  border: 1px solid #e3eef0 !important;
+  border-left: none !important;
+  border-radius: 0 100px 100px 0 !important;
+  margin-right: 10px;
+}
+
+/* cards */
+.card {
+  cursor: pointer;
+  display: flex;
+  height: 100% !important;
+  align-self: stretch;
+  align-items: stretch;
+  overflow: hidden;
+  width: auto;
+  margin-bottom: 15px;
+  box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.07) !important;
+}
+.card-title {
+  margin-bottom: 45px !important;
+}
+.card-body {
+  padding: 10px !important;
+  min-height: 270px;
+  margin-top: 35px;
+}
+.card-line {
+  display: flex;
+  flex-direction: row;
+  width: auto;
+  hyphens: auto;
+  margin-bottom: 15px;
+}
+.card-link {
+  box-sizing: border-box;
+  width: auto;
+  max-width: 100%;
+  hyphens: auto;
+}
+.card-text {
+  margin-left: 5px;
+}
+/* buttons */
+.user-modal {
+  margin-top: 100px;
+}
+.modal-dialog {
+  max-width: 580px !important;
+}
+.modal-content {
+  border-radius: 20px !important;
+  border: none !important;
+}
+.modal-title {
+  font-size: 33px !important;
+  margin-top: 20px !important;
+  margin-bottom: 5px !important;
+}
+.modal-backdrop {
+  background-color: #cdd6e2 !important;
+}
+.modal-info p {
+  font-family: "Roboto-light", sans-serif;
+  font-size: 14px;
+  color: #292929;
+}
+
+.modal-header,
+.modal-footer {
+  border: none !important;
+}
+
+.modal-footer {
+  flex-direction: column;
+  align-items: flex-start !important;
+}
+
+@media (max-width: 992px) {
+  .users-block {
+    padding: 0 20px !important;
+  }
+  .col {
+    padding: 0 !important;
+  }
+}
+@media (max-width: 768px) {
+  * {
+    font-size: 12px;
+  }
+  h5 {
+    font-size: 16px !important;
+  }
+  .modal-title {
+    font-size: 22px !important;
+  }
+  .card-body {
+    padding: 10px 0 !important;
+    min-height: 170px;
+  }
+  .user-modal {
+    padding-top: 30px;
+    margin-top: 30px !important;
+  }
+}
