@@ -11,17 +11,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     const card = event.relatedTarget;
     const recipient = card.getAttribute("data-bs-whatever");
     const modalTitle = exampleModal.querySelector(".modal-title");
+    const modalInfoPhone = exampleModal.querySelector(".modal-info-phone");
 
     modalTitle.textContent = `${recipient}`;
   });
 });
 
 async function getUsersList() {
-  const apiUrl = "http://127.0.0.1:3000/";
+  const apiUrl = "https://dummyjson.com/users/";
 
-  const usersObj = await getUsers(apiUrl);
-
-  console.log(usersObj);
+  const result = await getUsers(apiUrl);
+  const usersObj = Object.values(result)[0];
+  console.log(usersObj)
   if (usersObj === undefined || usersObj.length === 0) {
     alert("no users");
     return;
@@ -88,6 +89,7 @@ function clearContainer() {
 async function getUsers(api) {
   try {
     let res = await fetch(api);
+    console.log(res.users);
     return await res.json();
   } catch (error) {
     console.log(error);
@@ -109,9 +111,9 @@ async function onSearchClick() {
 function usersTemplate(user) {
   return `
       <div class="col-6 col-md-4 mb-3">
-        <div class="card p-3 mb-5 bg-white rounded border-0" data-bs-toggle="modal" data-bs-target="#exampleModal"  data-bs-whatever="${user.name}">
+        <div class="card p-3 mb-5 bg-white rounded border-0" data-bs-toggle="modal" data-bs-target="#exampleModal"  data-bs-whatever="${user.firstName} ${user.maidenName} ${user.lastName}">
             <div class="card-body">
-            <h5 class="card-title">${user.name}</h5>
+            <h5 class="card-title">${user.firstName} ${user.lastName}</h5>
             <div class="card-line">
                 <card-icon>
                   <div class="icon phone"></div>
@@ -131,7 +133,7 @@ function usersTemplate(user) {
             <div class="modal-content">
               <div class="modal-header">
                 <h4 class="modal-title" id="exampleModalLabel">
-                ${user.name}</h4>
+                ${user.firstName} ${user.middleName} ${user.lastName} </h4>
                 <div class="card-icon" data-bs-dismiss="modal" aria-label="Close">
                   <img src="./assets/img/x-circle-fill 1.png" alt="" class="close">
                 </div>
@@ -139,29 +141,29 @@ function usersTemplate(user) {
               <div class="modal-body">
                 <div class="row">
                   <div class="col-5"><p>Телефон:</p></div>
-                  <div class="col modal-info"><p>${user.phone}</p></div>
+                  <div class="col modal-info-phone"><p>${user.phone}</p></div>
                 </div>
                 <div class="row">
                   <div class="col-5"><p>Почта:</p></div>
-                  <div class="col modal-info"><p>${user.email}</p></div>
+                  <div class="col modal-info-email"><p>${user.email}</p></div>
                 </div>
                 <div class="row">
                   <div class="col-5"><p>Дата приема:</p></div>
-                  <div class="col modal-info"><p>${user.hire_date}</p></div>
+                  <div class="col modal-info-name"><p>${user.company.name}</p></div>
                 </div>
                 <div class="row">
                   <div class="col-5"><p>Должность:</p></div>
-                  <div class="col modal-info"><p>${user.position_name}</p></div>
+                  <div class="col modal-info-title"><p>${user.company.title}</p></div>
                 </div>
                 <div class="row">
                   <div class="col-5"><p>Подразделение:</p></div>
-                  <div class="col modal-info"><p>${user.department}</p></div>
+                  <div class="col modal-info-department"><p>${user.company.department}</p></div>
                 </div>
               </div>
               <div class="modal-footer justify-content-start">
                 <p>Дополнительная информация:</p>
-                <div class="col modal-info">
-                  <p>Разработчики используют текст Lorem ipsum в качестве заполнителя макета страницы. Так как дополнительная информации в JSON нет, а адрес нигде не используется - закинул его сюда. ${user.address}</p>
+                <div class="col modal-info-bottom">
+                  <p>Разработчики используют текст Lorem ipsum в качестве заполнителя макета страницы. Так как дополнительная информации в JSON нет, а адрес нигде не используется - закинул его сюда. ${user.address.address}</p>
                 </div>
               </div>
             </div>
