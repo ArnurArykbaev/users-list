@@ -175,6 +175,14 @@ h5 {
   align-items: flex-start !important;
 }
 
+/* pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+
+
+
 @media (max-width: 992px) {
   .users-block {
     padding: 0 20px !important;

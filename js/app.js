@@ -3,7 +3,7 @@ const searchInput = document.getElementById("search-input");
 const searchButton = document.querySelector["#button-search"];
 
 document.addEventListener("DOMContentLoaded", async function () {
-  let usersList = await getUsersList();
+  let usersList = await getUsersList(0);
   showUsers(usersList);
 
   const exampleModal = document.getElementById("exampleModal");
@@ -13,31 +13,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     const userFullName = card.getAttribute("data-bs-fullname");
     const userPhone = card.getAttribute("data-bs-phone");
     const userEmail = card.getAttribute("data-bs-email");
-    const userCompName = card.getAttribute("data-bs-company-name");
-    const userCompanyTitle = card.getAttribute("data-bs-company-title");
-    const userCompanyDepartment = card.getAttribute("data-bs-company-department");
-    const userAddress = card.getAttribute("data-bs-address");
 
     const modalTitle = exampleModal.querySelector(".modal-title");
     const modalPhone = exampleModal.querySelector(".modal-info-phone");
     const modalEmail = exampleModal.querySelector(".modal-info-email");
-    const modalCompName = exampleModal.querySelector(".modal-info-company-name");
-    const modalCompanyTitle = exampleModal.querySelector(".modal-info-company-title");
-    const modalCompanyDepartment = exampleModal.querySelector(".modal-info-company-department");
-    const modalAddress = exampleModal.querySelector(".modal-info-address");
 
     modalTitle.textContent = `${userFullName}`;
     modalPhone.textContent = `${userPhone}`;
     modalEmail.textContent = `${userEmail}`;
-    modalCompName.textContent = `${userCompName}`;
-    modalCompanyTitle.textContent = `${userCompanyTitle}`;
-    modalCompanyDepartment.textContent = `${userCompanyDepartment}`;
-    modalAddress.textContent = `Разработчики используют текст Lorem ipsum в качестве заполнителя макета страницы. Так как дополнительная информации в JSON нет, а адрес нигде не используется - закинул его сюда. ${userAddress}`;
   });
 });
 
-async function getUsersList() {
-  const apiUrl = "https://dummyjson.com/users/";
+async function getUsersList(skip) {
+  const apiUrl = `https://dummyjson.com/users?skip=${skip}&limit=12`;
 
   const result = await getUsers(apiUrl);
   const usersObj = Object.values(result)[0];
@@ -127,32 +115,23 @@ async function onSearchClick() {
   }
 }
 
-function usersTemplate({ firstName, maidenName, lastName, phone, email, user, company, address }) {
+function usersTemplate(user) {
   return `
       <div class="col-6 col-md-4 mb-3">
-        <div class="card p-3 mb-5 bg-white rounded border-0" data-bs-toggle="modal" data-bs-target="#exampleModal" 
-        data-bs-fullname="${firstName} ${maidenName} ${lastName}" 
-        data-bs-phone="${phone}" 
-        data-bs-email="${email}" 
-        data-bs-user="${user}" 
-        data-bs-company-name="${company.name}"
-        data-bs-company-title="${company.title}"
-        data-bs-company-department="${company.department}"
-        data-bs-address="${address.address}"
-        >
+        <div class="card p-3 mb-5 bg-white rounded border-0" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-fullname="${user.firstName} ${user.maidenName} ${user.lastName}" data-bs-phone="${user.phone}" data-bs-email="${user.email}" data-bs-user="${user.user}">
             <div class="card-body">
-            <h5 class="card-title">${firstName} ${lastName}</h5>
+            <h5 class="card-title">${user.firstName} ${user.lastName}</h5>
             <div class="card-line">
                 <card-icon>
                   <div class="icon phone"></div>
                 </card-icon>
-                <p class="card-text">${phone}</p>
+                <p class="card-text">${user.phone}</p>
             </div>
             <div class="card-line" lang="en">
                 <div class="card-icon">
                   <div class="icon email"></div>
                 </div>
-                <a href="#" class="card-text" lang="en">${email}</a>
+                <a href="#" class="card-text" lang="en">${user.email}</a>
             </div>
             </div>
         </div>
@@ -176,21 +155,21 @@ function usersTemplate({ firstName, maidenName, lastName, phone, email, user, co
                 </div>
                 <div class="row">
                   <div class="col-5"><p>Дата приема:</p></div>
-                  <div class="col modal-info-company-name"><p></p></div>
+                  <div class="col modal-info-name"><p>${user.company.name}</p></div>
                 </div>
                 <div class="row">
                   <div class="col-5"><p>Должность:</p></div>
-                  <div class="col modal-info-company-title"><p></p></div>
+                  <div class="col modal-info-title"><p>${user.company.title}</p></div>
                 </div>
                 <div class="row">
                   <div class="col-5"><p>Подразделение:</p></div>
-                  <div class="col modal-info-company-department"><p></p></div>
+                  <div class="col modal-info-department"><p>${user.company.department}</p></div>
                 </div>
               </div>
               <div class="modal-footer justify-content-start">
                 <p>Дополнительная информация:</p>
                 <div class="col modal-info-bottom">
-                  <p class="col modal-info-address"></p>
+                  <p>Разработчики используют текст Lorem ipsum в качестве заполнителя макета страницы. Так как дополнительная информации в JSON нет, а адрес нигде не используется - закинул его сюда. ${user.address.address}</p>
                 </div>
               </div>
             </div>
