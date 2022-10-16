@@ -1,10 +1,14 @@
 const usersContainer = document.querySelector(".users-container .row");
 const searchInput = document.getElementById("search-input");
 const searchButton = document.querySelector["#button-search"];
+const prevButton = document.getElementById("prevPageButton");
+const nextButton = document.getElementById("nextPageButton");
+let pagesrArray = [1, 2, 3, 4, 5];
 
 document.addEventListener("DOMContentLoaded", async function () {
   let usersList = await getUsersList(0);
   showUsers(usersList);
+  setPages(pagesrArray);
 
   const exampleModal = document.getElementById("exampleModal");
   exampleModal.addEventListener("show.bs.modal", (event) => {
@@ -186,4 +190,45 @@ function clearUsersContainer(container) {
     container.removeChild(children);
     children = container.lastElementChild;
   }
+}
+
+/* pagination */
+
+function setPages(pagesrArray) {
+  const buttonNext = document.querySelector(".next-page");
+  let fragment = "";
+
+  pagesrArray.forEach((page) => {
+    const el = pagesTemplate(page);
+    fragment += el;
+  });
+  buttonNext.insertAdjacentElement('beforebegin', fragment)
+}
+
+function pagesTemplate(page) {
+  return `  
+    <li
+    class="page-item"
+    id="prevPageButton"
+    >
+      <a
+        class="page-link"
+        href="#"
+        tabindex="-1"
+        aria-disabled="true"
+      >
+        ${page}
+      </a>
+    </li>
+  `;
+}
+
+async function onPrevButtonClick() {
+
+  console.log('prevBtn');
+  let users = getUsersList(skip);
+}
+
+function onNextButtonClick() {
+  console.log('nextBtn')
 }
