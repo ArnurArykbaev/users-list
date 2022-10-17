@@ -1,14 +1,21 @@
+const baseURL = "https://dummyjson.com";
+
 const usersContainer = document.querySelector(".users-container .row");
 const searchInput = document.getElementById("search-input");
 const searchButton = document.querySelector["#button-search"];
+const pagination = document.querySelector(".pagination");
 const prevButton = document.getElementById("prevPageButton");
 const nextButton = document.getElementById("nextPageButton");
-let pagesrArray = [1, 2, 3, 4, 5];
+let currentPage = 1;
+let pagesArray = [1, 2, 3, 4, 5];
+let total = null;
+const dataLimit = 12;
 
 document.addEventListener("DOMContentLoaded", async function () {
-  let usersList = await getUsersList(0);
+  let usersList = await getUsersList(currentPage);
   showUsers(usersList);
-  setPages(pagesrArray);
+  setPages(pagesArray);
+  searchInputWatch();
 
   const exampleModal = document.getElementById("exampleModal");
   exampleModal.addEventListener("show.bs.modal", (event) => {
@@ -26,35 +33,62 @@ document.addEventListener("DOMContentLoaded", async function () {
     modalPhone.textContent = `${userPhone}`;
     modalEmail.textContent = `${userEmail}`;
   });
+
+  pagination.addEventListener("click", (e) => {
+    if (e.target.classList.contains("page-link")) {
+      changeCurrentPage(e);
+    }
+  });
 });
 
-async function getUsersList(skip) {
-  const apiUrl = `https://dummyjson.com/users?skip=${skip}&limit=12`;
+function searchInputWatch() {
+  searchInput.addEventListener("input", async function (event) {
+    const searchText = searchInput.value;
 
-  const result = await getUsers(apiUrl);
-  const usersObj = Object.values(result)[0];
-  console.log(usersObj);
-  if (usersObj === undefined || usersObj.length === 0) {
-    alert("no users");
+    if (
+      searchText.length === 0 ||
+      searchText === null ||
+      searchText === undefined ||
+      searchText === ""
+    ) {
+      return;
+    } else {
+      clearUsersContainer(usersContainer);
+      const data = await getData(`${baseURL}/users/search?q=${searchText}`);
+      console.log(data);
+      renderUsers(data);
+    }
+  });
+}
+
+async function getUsersList(currentPage) {
+  let skip;
+  if (currentPage === 1) {
+    skip = currentPage - 1;
+  } else {
+    skip = currentPage * dataLimit - dataLimit;
+  }
+  const apiUrl = `${baseURL}/users?skip=${skip}&limit=${dataLimit}`;
+
+  const dataArray = await getData(apiUrl);
+  return dataArray;
+}
+
+async function getData(apiUrl) {
+  const data = await fetchData(apiUrl);
+  total = data.total;
+  const dataArr = Object.values(data)[0];
+  if (dataArr === undefined || dataArr.length === 0) {
+    alert("data empty");
     return;
   }
+  console.log("data", dataArr);
 
-  return usersObj;
+  return dataArr;
 }
 
 function showUsers(users) {
   renderUsers(users);
-
-  searchInput.addEventListener("input", function (event) {
-    const searchText = searchInput.value;
-
-    if (searchText === null || searchText === undefined || searchText === "") {
-      renderUsers(users);
-    } else {
-      clearUsersContainer(usersContainer);
-      fundUsersBySearch(searchText, users);
-    }
-  });
 }
 
 function fundUsersBySearch(search, users) {
@@ -97,10 +131,9 @@ function clearContainer() {
   usersContainer.innerHTML = "";
 }
 
-async function getUsers(api) {
+async function fetchData(api) {
   try {
     let res = await fetch(api);
-    console.log(res.users);
     return await res.json();
   } catch (error) {
     console.log(error);
@@ -109,7 +142,7 @@ async function getUsers(api) {
 
 async function onSearchClick() {
   const searchText = searchInput.value;
-  const users = await getUsers(`http://127.0.0.1:3000/?term=${searchText}`);
+  const users = await fetchData(`http://127.0.0.1:3000/?term=${searchText}`);
 
   if (searchText === null || searchText === undefined || searchText === "") {
     renderUsers(users);
@@ -117,6 +150,12 @@ async function onSearchClick() {
     clearUsersContainer(usersContainer);
     fundUsersBySearch(searchText, users);
   }
+}
+function clearSearchInput() {
+  if (!searchInput.value.length) {
+    return;
+  }
+  searchInput.value = null;
 }
 
 function usersTemplate(user) {
@@ -193,42 +232,68 @@ function clearUsersContainer(container) {
 }
 
 /* pagination */
+async function changeCurrentPage(e) {
+  clearSearchInput();
+  currentPage = e.target.innerHTML;
+  let usersList = await getUsersList(currentPage);
+  clearUsersContainer(usersContainer);
+  renderUsers(usersList);
+  if (currentPage >= 3) {
+    changePagesArray(currentPage);
+  }
+  clearPages();
+  setPages(pagesArray);
+  setActivePage(currentPage);
+}
 
-function setPages(pagesrArray) {
-  const buttonNext = document.querySelector(".next-page");
+function changePagesArray(currentPage) {
+  pagesArray = [];
+
+  for (let i = 0; pagesArray.length < 5; i++) {
+    let numberPage = i + Number(currentPage) - 2;
+    if (0 <= numberPage <= Math.round(total / dataLimit) + 1) {
+      pagesArray.push(numberPage);
+    } else return;
+  }
+}
+
+function setPages(pagesArray) {
   let fragment = "";
 
-  pagesrArray.forEach((page) => {
+  pagesArray.forEach((page) => {
     const el = pagesTemplate(page);
     fragment += el;
   });
-  buttonNext.insertAdjacentElement('beforebegin', fragment)
+
+  nextButton.insertAdjacentHTML("beforebegin", fragment);
 }
 
 function pagesTemplate(page) {
   return `  
     <li
-    class="page-item"
-    id="prevPageButton"
+    class="page-item page-number"
+    id="pageButton"
     >
       <a
-        class="page-link"
+        class="page-link link-number"
         href="#"
         tabindex="-1"
         aria-disabled="true"
-      >
-        ${page}
-      </a>
+      >${page}</a>
     </li>
   `;
 }
 
-async function onPrevButtonClick() {
-
-  console.log('prevBtn');
-  let users = getUsersList(skip);
+function setActivePage(currentPage) {
+  const pages = document.querySelectorAll(".link-number");
+  pages.forEach((el) => {
+    if (el.innerHTML === currentPage) {
+      el.parentElement.classList.add("active");
+    }
+  });
 }
 
-function onNextButtonClick() {
-  console.log('nextBtn')
+function clearPages() {
+  const pages = document.querySelectorAll(".page-number");
+  pages.forEach((el) => el.remove());
 }
