@@ -6,7 +6,7 @@ const searchButton = document.querySelector["#button-search"];
 const pagination = document.querySelector(".pagination");
 const prevButton = document.getElementById("prevPageButton");
 const nextButton = document.getElementById("nextPageButton");
-let currentPage = 1;
+let currentPage = "1";
 let pagesArray = [1, 2, 3, 4, 5];
 let total = null;
 const dataLimit = 12;
@@ -16,23 +16,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   showUsers(usersList);
   setPages(pagesArray);
   searchInputWatch();
-
-  const exampleModal = document.getElementById("exampleModal");
-  exampleModal.addEventListener("show.bs.modal", (event) => {
-    const card = event.relatedTarget;
-
-    const userFullName = card.getAttribute("data-bs-fullname");
-    const userPhone = card.getAttribute("data-bs-phone");
-    const userEmail = card.getAttribute("data-bs-email");
-
-    const modalTitle = exampleModal.querySelector(".modal-title");
-    const modalPhone = exampleModal.querySelector(".modal-info-phone");
-    const modalEmail = exampleModal.querySelector(".modal-info-email");
-
-    modalTitle.textContent = `${userFullName}`;
-    modalPhone.textContent = `${userPhone}`;
-    modalEmail.textContent = `${userEmail}`;
-  });
+  setModalWindows();
 
   pagination.addEventListener("click", (e) => {
     if (e.target.classList.contains("page-link")) {
@@ -55,9 +39,27 @@ function searchInputWatch() {
     } else {
       clearUsersContainer(usersContainer);
       const data = await getData(`${baseURL}/users/search?q=${searchText}`);
-      console.log(data);
       renderUsers(data);
     }
+  });
+}
+
+function setModalWindows() {
+  const exampleModal = document.getElementById("exampleModal");
+  exampleModal.addEventListener("show.bs.modal", (event) => {
+    const card = event.relatedTarget;
+
+    const userFullName = card.getAttribute("data-bs-fullname");
+    const userPhone = card.getAttribute("data-bs-phone");
+    const userEmail = card.getAttribute("data-bs-email");
+
+    const modalTitle = exampleModal.querySelector(".modal-title");
+    const modalPhone = exampleModal.querySelector(".modal-info-phone");
+    const modalEmail = exampleModal.querySelector(".modal-info-email");
+
+    modalTitle.textContent = `${userFullName}`;
+    modalPhone.textContent = `${userPhone}`;
+    modalEmail.textContent = `${userEmail}`;
   });
 }
 
@@ -82,7 +84,6 @@ async function getData(apiUrl) {
     alert("data empty");
     return;
   }
-  console.log("data", dataArr);
 
   return dataArr;
 }
@@ -182,7 +183,7 @@ function usersTemplate(user) {
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title" id="exampleModalLabel"></h4>
+                <h4 class="modal-title modal-title" id="exampleModalLabel"></h4>
                 <div class="card-icon" data-bs-dismiss="modal" aria-label="Close">
                   <img src="./assets/img/x-circle-fill 1.png" alt="" class="close">
                 </div>
@@ -233,28 +234,67 @@ function clearUsersContainer(container) {
 
 /* pagination */
 async function changeCurrentPage(e) {
+  const currentLimit = Math.ceil(total / dataLimit);
+
   clearSearchInput();
   currentPage = e.target.innerHTML;
   let usersList = await getUsersList(currentPage);
   clearUsersContainer(usersContainer);
   renderUsers(usersList);
-  if (currentPage >= 3) {
-    changePagesArray(currentPage);
-  }
+  disabledJumpPages(currentPage, currentLimit);
+  changePagesArray(currentPage, currentLimit);
   clearPages();
   setPages(pagesArray);
-  setActivePage(currentPage);
+  setModalWindows();
 }
 
-function changePagesArray(currentPage) {
-  pagesArray = [];
+function disabledJumpPages(currentPage, limit) {
+  const prevBtn = document.querySelector(".prev");
+  const nextBtn = document.querySelector(".next");
 
-  for (let i = 0; pagesArray.length < 5; i++) {
-    let numberPage = i + Number(currentPage) - 2;
-    if (0 <= numberPage <= Math.round(total / dataLimit) + 1) {
-      pagesArray.push(numberPage);
-    } else return;
+  if (currentPage > 3) {
+    prevBtn.classList.remove("disabled");
+  } else if (currentPage <= 3 && !prevBtn.classList.contains("disabled")) {
+    prevBtn.classList.add("disabled");
   }
+
+  if (currentPage >= limit - 2 && !nextBtn.classList.contains("disabled")) {
+    nextBtn.classList.add("disabled");
+  } else if (
+    currentPage < limit - 2 &&
+    nextBtn.classList.contains("disabled")
+  ) {
+    nextBtn.classList.remove("disabled");
+  }
+}
+
+function changePagesArray(currentPage, limit) {
+  if (currentPage < 3) {
+    pagesArray = [1, 2, 3, 4, 5];
+    return pagesArray;
+  } else {
+    pagesArray = calculatePagesArray(currentPage, limit);
+    return pagesArray;
+  }
+}
+
+function calculatePagesArray(page, limit) {
+  let resArray = [];
+
+  if (page >= limit - 2) {
+    let array = [];
+    for (let i = 0; array.length < 5; i++) {
+      array.push(limit - i);
+    }
+    resArray = array.reverse();
+  } else {
+    for (let i = 0; resArray.length < 5; i++) {
+      let numberPage = i + Number(page) - 2;
+      resArray.push(numberPage);
+    }
+  }
+
+  return resArray;
 }
 
 function setPages(pagesArray) {
@@ -266,6 +306,7 @@ function setPages(pagesArray) {
   });
 
   nextButton.insertAdjacentHTML("beforebegin", fragment);
+  setActivePage(currentPage);
 }
 
 function pagesTemplate(page) {
