@@ -11,12 +11,8 @@ let pagesArray = [1, 2, 3, 4, 5];
 let total = null;
 const dataLimit = 12;
 
-document.addEventListener("DOMContentLoaded", async function () {
-  let usersList = await getUsersList(currentPage);
-  showUsers(usersList);
-  setPages(pagesArray);
-  searchInputWatch();
-  setModalWindows();
+document.addEventListener("DOMContentLoaded", function () {
+  initApp();
 
   pagination.addEventListener("click", (e) => {
     if (e.target.classList.contains("link-number")) {
@@ -25,9 +21,21 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 });
 
+async function initApp() {
+  let usersList = await getUsersList(currentPage);
+  showUsers(usersList);
+  setPages(pagesArray);
+  searchInputWatch();
+  setModalWindows();
+}
+
 function searchInputWatch() {
   searchInput.addEventListener("input", async function (event) {
     const searchText = searchInput.value;
+    currentPage = 1;
+    setActivePage(currentPage);
+    removeParam("page");
+    setParams("search", searchText);
 
     if (
       searchText.length === 0 ||
@@ -40,6 +48,13 @@ function searchInputWatch() {
       clearUsersContainer(usersContainer);
       const data = await getData(`${baseURL}/users/search?q=${searchText}`);
       renderUsers(data);
+      currentPage = 1;
+      const currentLimit = Math.ceil(total / dataLimit);
+      disabledJumpPages(currentPage, currentLimit);
+      changePagesArray(currentPage, currentLimit);
+      clearPages();
+      setPages(pagesArray);
+      setModalWindows();
     }
   });
 }
@@ -77,8 +92,11 @@ async function getUsersList(currentPage) {
 }
 
 async function getData(apiUrl) {
+  const search = apiUrl.includes("search");
   const data = await fetchData(apiUrl);
-  total = data.total;
+  if (!search) {
+    total = data.total;
+  }
   const dataArr = Object.values(data)[0];
   if (dataArr === undefined || dataArr.length === 0) {
     alert("data empty");
@@ -142,15 +160,8 @@ async function fetchData(api) {
 }
 
 async function onSearchClick() {
-  const searchText = searchInput.value;
-  const users = await fetchData(`http://127.0.0.1:3000/?term=${searchText}`);
-
-  if (searchText === null || searchText === undefined || searchText === "") {
-    renderUsers(users);
-  } else {
-    clearUsersContainer(usersContainer);
-    fundUsersBySearch(searchText, users);
-  }
+  removeParam("search");
+  searchInputWatch();
 }
 function clearSearchInput() {
   if (!searchInput.value.length) {
@@ -234,6 +245,7 @@ function clearUsersContainer(container) {
 
 /* pagination */
 async function changeCurrentPage(e) {
+  /* find the max pages from all possible data */
   const currentLimit = Math.ceil(total / dataLimit);
 
   clearSearchInput();
@@ -250,6 +262,8 @@ async function changePage(currentLimit) {
   clearPages();
   setPages(pagesArray);
   setModalWindows();
+  setParams("page", currentPage);
+  removeParam("search");
 }
 
 function disabledJumpPages(currentPage, limit) {
@@ -329,6 +343,11 @@ function pagesTemplate(page) {
   `;
 }
 
+function removeActivePage() {
+  document.querySelector(".active");
+  return document.querySelector(".active").classList.remove("active");
+}
+
 function setActivePage(currentPage) {
   const pages = document.querySelectorAll(".link-number");
   pages.forEach((el) => {
@@ -347,7 +366,6 @@ async function onNextButtonClick() {
   const currentLimit = Math.ceil(total / dataLimit);
   currentPage = currentLimit;
   changePage(currentLimit);
-  console.log(currentPage);
 }
 
 async function onPrevButtonClick() {
@@ -355,4 +373,20 @@ async function onPrevButtonClick() {
   currentPage = 1;
   changePage(currentLimit);
   setActivePage(currentPage);
+}
+
+function removeParam(state) {
+  let res = window.location.search.split('&')
+  console.log(window.location.search);
+  console.log(res);
+}
+
+function setParams(state, val) {
+  console.log(window.location);
+  if ("URLSearchParams" in window) {
+    var searchParams = new URLSearchParams(window.location.search);
+    searchParams.set(`${state}`, `${val}`);
+    var newRelativePathQuery = window.location.pathname + "?" + searchParams.toString();
+    history.pushState(null, "", newRelativePathQuery);
+  }
 }
