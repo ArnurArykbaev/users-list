@@ -332,7 +332,7 @@ function pagesTemplate(page) {
 function setActivePage(currentPage) {
   const pages = document.querySelectorAll(".link-number");
   pages.forEach((el) => {
-    if (el.innerHTML === currentPage) {
+    if (el.innerHTML == currentPage) {
       el.parentElement.classList.add("active");
     }
   });
@@ -347,10 +347,12 @@ async function onNextButtonClick() {
   const currentLimit = Math.ceil(total / dataLimit);
   currentPage = currentLimit;
   changePage(currentLimit);
+  console.log(currentPage);
 }
 
 async function onPrevButtonClick() {
   const currentLimit = Math.ceil(total / dataLimit);
   currentPage = 1;
   changePage(currentLimit);
+  setActivePage(currentPage);
 }
