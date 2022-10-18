@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   setModalWindows();
 
   pagination.addEventListener("click", (e) => {
-    if (e.target.classList.contains("page-link")) {
+    if (e.target.classList.contains("link-number")) {
       changeCurrentPage(e);
     }
   });
@@ -238,6 +238,10 @@ async function changeCurrentPage(e) {
 
   clearSearchInput();
   currentPage = e.target.innerHTML;
+  changePage(currentLimit);
+}
+
+async function changePage(currentLimit) {
   let usersList = await getUsersList(currentPage);
   clearUsersContainer(usersContainer);
   renderUsers(usersList);
@@ -337,4 +341,16 @@ function setActivePage(currentPage) {
 function clearPages() {
   const pages = document.querySelectorAll(".page-number");
   pages.forEach((el) => el.remove());
+}
+
+async function onNextButtonClick() {
+  const currentLimit = Math.ceil(total / dataLimit);
+  currentPage = currentLimit;
+  changePage(currentLimit);
+}
+
+async function onPrevButtonClick() {
+  const currentLimit = Math.ceil(total / dataLimit);
+  currentPage = 1;
+  changePage(currentLimit);
 }

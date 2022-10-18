@@ -181,8 +181,6 @@ h5 {
   justify-content: center;
 }
 
-
-
 @media (max-width: 992px) {
   .users-block {
     padding: 0 20px !important;
@@ -206,7 +204,7 @@ h5 {
     min-height: 170px;
   }
   .user-modal {
-    padding-top: 30px;
-    margin-top: 30px !important;
+    padding-top: 60px;
+    margin-top: 0px !important;
   }
 }
