@@ -22,11 +22,27 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function initApp() {
+  checkURL();
   let usersList = await getUsersList(currentPage);
   showUsers(usersList);
   setPages(pagesArray);
   searchInputWatch();
   setModalWindows();
+}
+
+function checkURL() {
+  let url = new URL(window.location.toString());
+  let params = new URLSearchParams(url.search);
+  let searchParamsObj = {};
+  for (const [key, value] of params.entries()) {
+    searchParamsObj[key] = value;
+  }
+
+  if (params.has("search")) {
+    searchInput.value = searchParamsObj.search;
+  } else if (params.has("page")) {
+    currentPage = searchParamsObj.page;
+  }
 }
 
 function searchInputWatch() {
@@ -47,14 +63,19 @@ function searchInputWatch() {
     } else {
       clearUsersContainer(usersContainer);
       const data = await getData(`${baseURL}/users/search?q=${searchText}`);
-      renderUsers(data);
-      currentPage = 1;
-      const currentLimit = Math.ceil(total / dataLimit);
-      disabledJumpPages(currentPage, currentLimit);
-      changePagesArray(currentPage, currentLimit);
-      clearPages();
-      setPages(pagesArray);
-      setModalWindows();
+      if (!data || data == undefined) {
+        return setEmptyResult(searchText);
+      } else {
+        console.log("here");
+        renderUsers(data);
+        currentPage = 1;
+        const currentLimit = Math.ceil(total / dataLimit);
+        disabledJumpPages(currentPage, currentLimit);
+        changePagesArray(currentPage, currentLimit);
+        clearPages();
+        setPages(pagesArray);
+        setModalWindows();
+      }
     }
   });
 }
@@ -99,7 +120,7 @@ async function getData(apiUrl) {
   }
   const dataArr = Object.values(data)[0];
   if (dataArr === undefined || dataArr.length === 0) {
-    alert("data empty");
+    setEmptyResult();
     return;
   }
 
@@ -124,14 +145,16 @@ function fundUsersBySearch(search, users) {
     return resArr.indexOf(item) == pos;
   });
 
-  if (searchRes.length === 0) {
+  if (searchRes.length === 0 || searchRes == undefined) {
     clearUsersContainer(usersContainer);
-    alert("No match info");
+    setEmptyResult(search);
+  } else {
+    renderUsers(searchRes);
   }
-  renderUsers(searchRes);
 }
 
 function renderUsers(users) {
+  console.log(users);
   const usersContainer = document.querySelector(".users-container .row");
   if (usersContainer.children.length) {
     clearContainer(usersContainer);
@@ -160,7 +183,6 @@ async function fetchData(api) {
 }
 
 async function onSearchClick() {
-  removeParam("search");
   searchInputWatch();
 }
 function clearSearchInput() {
@@ -376,17 +398,42 @@ async function onPrevButtonClick() {
 }
 
 function removeParam(state) {
-  let res = window.location.search.split('&')
-  console.log(window.location.search);
-  console.log(res);
+  let res = window.location.search.split("&");
+  let params = new URLSearchParams(document.location.search);
+  params.delete(state); //Query string is now: 'bar=2'
+  var newRelativePathQuery = window.location.pathname + "?" + params;
+  history.pushState(null, "", newRelativePathQuery);
 }
 
 function setParams(state, val) {
-  console.log(window.location);
   if ("URLSearchParams" in window) {
     var searchParams = new URLSearchParams(window.location.search);
     searchParams.set(`${state}`, `${val}`);
-    var newRelativePathQuery = window.location.pathname + "?" + searchParams.toString();
+    var newRelativePathQuery =
+      window.location.pathname + "?" + searchParams.toString();
     history.pushState(null, "", newRelativePathQuery);
   }
+}
+
+function setEmptyResult(search = "") {
+  clearContainer(usersContainer);
+  let fragment = "";
+
+  const el = emptyTemplate(search);
+  fragment += el;
+
+  usersContainer.insertAdjacentHTML("afterbegin", fragment);
+  setActivePage(1);
+}
+
+function emptyTemplate(search) {
+  return `
+    <div class="col-12 mb-5">
+      <div class="card p-3 mb-5 bg-white rounded border-0"">
+        <div class="card-body">
+          <h5 class="card-title text-center">We have not any data ${search}</h5>
+        </div>
+      </div>
+    </div>
+    `;
 }
