@@ -427,7 +427,7 @@ function emptyTemplate(search) {
     <div class="col-12 mb-5">
       <div class="card p-3 mb-5 bg-white rounded border-0"">
         <div class="card-body">
-          <h5 class="card-title text-center">We have not any data ${search}</h5>
+          <h5 class="card-title text-center">We don't have any data ${search}</h5>
         </div>
       </div>
     </div>
