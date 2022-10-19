@@ -56,8 +56,7 @@ function searchInputWatch() {
     if (
       searchText.length === 0 ||
       searchText === null ||
-      searchText === undefined ||
-      searchText === ""
+      searchText === undefined
     ) {
       return;
     } else {
@@ -66,9 +65,7 @@ function searchInputWatch() {
       if (!data || data == undefined) {
         return setEmptyResult(searchText);
       } else {
-        console.log("here");
         renderUsers(data);
-        currentPage = 1;
         const currentLimit = Math.ceil(total / dataLimit);
         disabledJumpPages(currentPage, currentLimit);
         changePagesArray(currentPage, currentLimit);
@@ -154,7 +151,6 @@ function fundUsersBySearch(search, users) {
 }
 
 function renderUsers(users) {
-  console.log(users);
   const usersContainer = document.querySelector(".users-container .row");
   if (usersContainer.children.length) {
     clearContainer(usersContainer);
